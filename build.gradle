@@ -11,6 +11,12 @@ repositories {
 
 dependencies {
     implementation 'org.openpnp:opencv:4.9.0-0'
+
+    implementation "org.nd4j:nd4j-native-platform:0.9.1"
+    implementation "org.deeplearning4j:deeplearning4j-core:0.9.1"
+    implementation "org.deeplearning4j:deeplearning4j-zoo:1.0.0-M2.1"
+    implementation 'org.slf4j:slf4j-jdk14:1.7.26'
+
 }
 
 
