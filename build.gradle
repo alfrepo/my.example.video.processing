@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+}
+
+group = 'your.group.id' // Replace with your group ID
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.openpnp:opencv:4.9.0-0'
+}
+
+
+
