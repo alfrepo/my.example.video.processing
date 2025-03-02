@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+group = 'your.group.id' // Replace with your group ID
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.openpnp:opencv:4.9.0-0'
+
+    // ONNX Runtime CPU version for Windows
+    implementation 'com.microsoft.onnxruntime:onnxruntime:1.20.0' // Or latest version for Windows CPU
+
+    // If you need image processing (for drawing bounding boxes, etc.)
+    implementation 'org.bytedeco:javacv:1.5.9' // Or latest version
+
+    implementation "org.nd4j:nd4j-native-platform:0.9.1"
+    implementation "org.deeplearning4j:deeplearning4j-core:0.9.1"
+    implementation "org.deeplearning4j:deeplearning4j-zoo:1.0.0-M2.1"
+    implementation 'org.slf4j:slf4j-jdk14:1.7.26'
+
+}
+
+
+
