@@ -3,6 +3,8 @@ package my.example.video.processing;
 
 import ai.onnxruntime.OrtException;
 import nu.pattern.OpenCV;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.opencv.core.*;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.VideoWriter;
@@ -12,14 +14,19 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
 
+
 public class WebcamViewer extends JFrame {
 
-    private JLabel imageLabel;
+    private static final Logger logger = LogManager.getLogger(WebcamViewer.class);
+
+    private JLabel faceFrameLabel;
     private VideoCapture capture;
     private Mat frame;
     private boolean isRecording = false;
@@ -45,8 +52,8 @@ public class WebcamViewer extends JFrame {
         // install the libraries to a temporary folder
         OpenCV.loadShared();
 
-        imageLabel = new JLabel();
-        add(imageLabel, BorderLayout.CENTER);
+        faceFrameLabel = new JLabel();
+        add(faceFrameLabel, BorderLayout.CENTER);
 
         JButton recordButton = new JButton("Start Recording");
         recordButton.addActionListener(new ActionListener() {
@@ -100,18 +107,19 @@ public class WebcamViewer extends JFrame {
 
                     // Convert Mat to BufferedImage
                     BufferedImage image = Mat2BufferedImage(frame);
-                    imageLabel.setIcon(new ImageIcon(image));
+                    faceFrameLabel.setIcon(new ImageIcon(image));
+
+                    List<Rectangle> rectangles = new ArrayList<>();
 
                     // recognize image
                     try {
-                        faceRecognizer.recognizeFace(image);
-                    } catch (OrtException e) {
-                        throw new RuntimeException(e);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        rectangles = faceRecognizer.recognizeFace(image);
+                        logger.debug("Face recognition: " + rectangles.size());
+                    } catch (Exception e) {
+                        logger.error("Face recognition failed: " + e.getMessage());
                     }
 
-                    drawFrame(imageLabel);
+                    drawFrame(faceFrameLabel, rectangles);
 
                     if (isRecording && videoWriter != null) {
                         videoWriter.write(frame);
@@ -131,24 +139,22 @@ public class WebcamViewer extends JFrame {
         }).start();
     }
 
-    private void drawFrame(JLabel label) {
-        // Create a JPanel to draw on (recommended approach)
+    private void drawFrame(JLabel label, List<Rectangle> rectangles) {
+        // Create a JPanel to draw on
         JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g.create();
 
-                int width = getWidth();  // Get width from the panel
-                int height = getHeight(); // Get height from the panel
-
-                int frameSize = 100;
-                int x = (width - frameSize) / 2;
-                int y = (height - frameSize) / 2;
-
+                // Set color and stroke for the frames
                 g2d.setColor(Color.RED);
                 g2d.setStroke(new BasicStroke(2));
-                g2d.drawRect(x, y, frameSize, frameSize);
+
+                // Draw a frame around each rectangle in the list
+                for (Rectangle rect : rectangles) {
+                    g2d.drawRect(rect.x, rect.y, rect.width, rect.height);
+                }
 
                 g2d.dispose();
             }
